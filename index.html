@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentaSoft App — Gestión Dental Integral</title>
+    <style>
+        :root {
+            --primary: #2a67ba;
+            --primary-hover: #194c85;
+            --secondary: #4bb543;
+            --danger: #c0392b;
+            --bg: #f7f8fc;
+            --surface: #fff;
+            --text: #222;
+            --border: #ddd;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+        }
+        .container {
+            display: flex; min-height: 100vh; background: var(--bg);
+        }
+        .sidebar {
+            width: 260px; background: var(--primary); color: #fff;
+            padding: 24px 12px; box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+        }
+        .logo { font-size: 22px; font-weight: bold; margin-bottom: 26px; padding-bottom: 14px; border-bottom: 2px solid rgba(255,255,255,0.15); }
+        .menu-item { padding: 12px 8px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; transition: all 0.25s; font-weight: 500; }
+        .menu-item:hover, .menu-item.active { background: var(--primary-hover); transform: translateX(5px); }
+        .main { flex: 1; display: flex; flex-direction: column; background: var(--surface); }
+        .header {
+            background: var(--surface); padding: 18px 24px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .header h1 { font-size: 26px; color: var(--primary); margin: 0; }
+        .github-status { font-size: 14px; margin-left: 24px; color: var(--secondary); font-weight: 600; }
+        .tabs {
+            display: flex; gap: 20px; padding: 0 30px; border-bottom: 1px solid var(--border); background: var(--surface);
+        }
+        .tab { font-weight: 500; color: var(--primary); cursor: pointer; padding: 10px 0; }
+        .tab.active { border-bottom: 2px solid var(--primary); color: var(--primary-hover); }
+        .content { padding: 30px; overflow-y: auto; }
+        .form-group { margin-bottom: 18px; }
+        label { font-weight: 500; margin-bottom: 6px; display: block; }
+        input, textarea, select {
+            width: 100%; padding: 9px; margin-top: 4px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;
+        }
+        button {
+            background: var(--primary); color: #fff; font-weight: 600; padding: 9px 22px; border-radius: 5px; font-size: 16px;
+            border: none; cursor: pointer; transition: background 0.2s; margin-top: 10px; margin-bottom: 8px;
+        }
+        button:hover { background: var(--primary-hover); }
+        .record-list { margin-top: 18px; }
+        .record {
+            background: #f8fcff; border: 1px solid #e0e7ef; padding: 12px 18px; border-radius: 6px;
+            margin-bottom: 12px; font-size: 15px; position: relative;
+        }
+        .delete-btn {
+            position: absolute; top: 12px; right: 14px; padding: 2px 10px; font-size: 15px; background: var(--danger);
+            color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.85; transition: opacity 0.15s;
+        }
+        .delete-btn:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">DentaSoft App</div>
+            <div class="menu-item active">Pacientes</div>
+            <div class="menu-item">Análisis Ortodónticos</div>
+            <div class="menu-item">Historial</div>
+            <div class="menu-item">Citas</div>
+            <div class="menu-item">Tratamientos</div>
+            <div class="menu-item">Medicamentos</div>
+            <div class="menu-item">Sincronización GitHub</div>
+        </aside>
+        <main class="main">
+            <div class="header">
+                <h1>Gestión Dental Integral</h1>
+                <span class="github-status" id="github-status">Sin conexión a GitHub</span>
+            </div>
+            <div class="tabs">
+                <span class="tab active" id="tab-pacientes" onclick="showTab('pacientes')">Pacientes</span>
+                <span class="tab" id="tab-analisis" onclick="showTab('analisis')">Análisis</span>
+                <span class="tab" id="tab-historial" onclick="showTab('historial')">Historial</span>
+            </div>
+            <div class="content" id="tab-content">
+                <!-- Formulario Pacientes -->
+                <form id="form-paciente">
+                    <div class="form-group">
+                        <label for="patientName">Nombre completo</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientID">N° de historia clínica</label>
+                        <input type="text" id="patientID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthDate">Fecha de nacimiento</label>
+                        <input type="date" id="birthDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Edad</label>
+                        <input type="number" min="0" max="120" id="age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">Sexo</label>
+                        <select id="sex"><option value="">Selecciona</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" id="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="analysis">Análisis ortodóntico</label>
+                        <select id="analysis">
+                            <option value="">Selecciona</option>
+                            <option value="Bolton">Bolton</option>
+                            <option value="Discrepancia">Discrepancia</option>
+                            <option value="Tanaka-Johnston">Tanaka-Johnston</option>
+                            <option value="Moyers">Moyers</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diagnosis">Diagnóstico</label>
+                        <textarea id="diagnosis" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notas y observaciones</label>
+                        <textarea id="notes" rows="3"></textarea>
+                    </div>
+                    <button type="button" onclick="addRecord()">Guardar Registro</button>
+                </form>
+                <br>
+                <div class="form-group">
+                    <label for="githubToken">Token GitHub personal</label>
+                    <input type="password" id="githubToken" placeholder="Token para sincronizar datos">
+                    <button type="button" onclick="syncWithGitHub()">Sincronizar con GitHub</button>
+                </div>
+                <div class="record-list" id="recordList"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        let records = [];
+        function showTab(tab) {
+            const tabs = ["pacientes","analisis","historial"];
+            tabs.forEach(t => {
+                document.getElementById("tab-"+t).classList.remove("active");
+            });
+            document.getElementById("tab-"+tab).classList.add("active");
+            document.getElementById("tab-content").innerHTML = '';
+            if(tab === "pacientes") {
+                document.getElementById("tab-content").appendChild(document.getElementById("form-paciente"));
+                document.getElementById("tab-content").appendChild(document.getElementById("recordList"));
+            } else if(tab === "analisis") {
+                document.getElementById("tab-content").innerHTML = '<p>Aquí podrás automatizar el cálculo de análisis ortodónticos.</p>';
+            } else if(tab === "historial") {
+                renderRecords(true);
+            }
+        }
+        function addRecord() {
+            const r = {
+                name: document.getElementById('patientName').value.trim(),
+                id: document.getElementById('patientID').value.trim(),
+                birthDate: document.getElementById('birthDate').value,
+                age: document.getElementById('age').value,
+                sex: document.getElementById('sex').value,
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                analysis: document.getElementById('analysis').value,
+                diagnosis: document.getElementById('diagnosis').value.trim(),
+                notes: document.getElementById('notes').value.trim(),
+                date: new Date().toLocaleString() 
+            };
+            if(!r.name || !r.id || !r.birthDate || !r.age || !r.sex){
+                alert('Complete los datos principales');
+                return;
+            }
+            records.push(r);
+            renderRecords();
+            document.getElementById('form-paciente').reset();
+        }
+        function renderRecords(history=false) {
+            let list = document.getElementById('recordList');
+            list.innerHTML = '';
+            let recs = records;
+            if(history && records.length) {
+                list.innerHTML = '<h3>Historial de pacientes registrados:</h3>';
+            }
+            recs.forEach((r,idx) => {
+                list.innerHTML += `<div class='record'>
+                    <b>#${r.id}</b> <br><b>${r.name}</b> (${r.sex}, ${r.age} años) <br>
+                    Correo: ${r.email} Tel: ${r.phone}<br>
+                    Análisis: ${r.analysis} <br>
+                    Diagnóstico: ${r.diagnosis} <br>
+                    Notas: ${r.notes} <br>
+                    Fecha: <small>${r.date}</small>
+                    <button class='delete-btn' onclick='deleteRecord(${idx})'>Eliminar</button>
+                </div>`;
+            });
+        }
+        function deleteRecord(idx) {
+            if(confirm('¿Seguro que desea eliminar este registro?')) {
+                records.splice(idx,1); renderRecords();
+            }
+        }
+        async function syncWithGitHub() {
+            const token = document.getElementById('githubToken').value.trim();
+            if (!token) {
+                alert('Debes ingresar tu token personal de GitHub para sincronizar.');
+                return;
+            }
+            document.getElementById('github-status').innerText = 'Sincronizando con GitHub...';
+            const repo = 'lizardoba/dentasoft-app';
+            const path = 'records.json';
+            const message = `Sync registros gestión dental - ${new Date().toISOString()}`;
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(records, null, 2))));
+            let sha = '';
+            try {
+                const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                    headers: { Authorization: `token ${token}` }
+                });
+                if (getRes.ok) {
+                    const getResData = await getRes.json();
+                    sha = getResData.sha;
+                }
+            } catch(e) {}
+            const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', Authorization: `token ${token}` },
+                body: JSON.stringify({ message, content, sha })
+            });
+            if (res.ok) {
+                document.getElementById('github-status').innerText = 'Registros sincronizados con GitHub.';
+            } else {
+                document.getElementById('github-status').innerText = 'Error al sincronizar con GitHub.';
+            }
+        }
+        // Inicializa vista por defecto
+        window.onload = function(){ renderRecords(); };
+    </script>
+</body>
+</html>
