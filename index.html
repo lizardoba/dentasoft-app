@@ -38,11 +38,11 @@
         }
         .header h1 { font-size: 26px; color: var(--primary); margin: 0; }
         .github-status { font-size: 14px; margin-left: 24px; color: var(--secondary); font-weight: 600; }
-        .tabs {
-            display: flex; gap: 20px; padding: 0 30px; border-bottom: 1px solid var(--border); background: var(--surface);
-        }
+        .tabs { display: flex; gap: 20px; padding: 0 30px; border-bottom: 1px solid var(--border); background: var(--surface); }
         .tab { font-weight: 500; color: var(--primary); cursor: pointer; padding: 10px 0; }
         .tab.active { border-bottom: 2px solid var(--primary); color: var(--primary-hover); }
+        .tab-content-section { display: none; }
+        .tab-content-section.active { display: block; }
         .content { padding: 30px; overflow-y: auto; }
         .form-group { margin-bottom: 18px; }
         label { font-weight: 500; margin-bottom: 6px; display: block; }
@@ -56,12 +56,10 @@
         button:hover { background: var(--primary-hover); }
         .record-list { margin-top: 18px; }
         .record {
-            background: #f8fcff; border: 1px solid #e0e7ef; padding: 12px 18px; border-radius: 6px;
-            margin-bottom: 12px; font-size: 15px; position: relative;
+            background: #f8fcff; border: 1px solid #e0e7ef; padding: 12px 18px; border-radius: 6px; margin-bottom: 12px; font-size: 15px; position: relative;
         }
         .delete-btn {
-            position: absolute; top: 12px; right: 14px; padding: 2px 10px; font-size: 15px; background: var(--danger);
-            color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.85; transition: opacity 0.15s;
+            position: absolute; top: 12px; right: 14px; padding: 2px 10px; font-size: 15px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.85; transition: opacity 0.15s;
         }
         .delete-btn:hover { opacity: 1; }
     </style>
@@ -84,88 +82,95 @@
                 <span class="github-status" id="github-status">Sin conexión a GitHub</span>
             </div>
             <div class="tabs">
-                <span class="tab active" id="tab-pacientes" onclick="showTab('pacientes')">Pacientes</span>
-                <span class="tab" id="tab-analisis" onclick="showTab('analisis')">Análisis</span>
-                <span class="tab" id="tab-historial" onclick="showTab('historial')">Historial</span>
+                <span class="tab active" id="tab-pacientes" onclick="switchTab('pacientes')">Pacientes</span>
+                <span class="tab" id="tab-analisis" onclick="switchTab('analisis')">Análisis</span>
+                <span class="tab" id="tab-historial" onclick="switchTab('historial')">Historial</span>
             </div>
-            <div class="content" id="tab-content">
-                <!-- Formulario Pacientes -->
-                <form id="form-paciente">
+            <div class="content">
+                <div class="tab-content-section active" id="section-pacientes">
+                    <form id="form-paciente">
+                        <div class="form-group">
+                            <label for="patientName">Nombre completo</label>
+                            <input type="text" id="patientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="patientID">N° de historia clínica</label>
+                            <input type="text" id="patientID" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="birthDate">Fecha de nacimiento</label>
+                            <input type="date" id="birthDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Edad</label>
+                            <input type="number" min="0" max="120" id="age" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sex">Sexo</label>
+                            <select id="sex"><option value="">Selecciona</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo electrónico</label>
+                            <input type="email" id="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Teléfono</label>
+                            <input type="tel" id="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="analysis">Análisis ortodóntico</label>
+                            <select id="analysis">
+                                <option value="">Selecciona</option>
+                                <option value="Bolton">Bolton</option>
+                                <option value="Discrepancia">Discrepancia</option>
+                                <option value="Tanaka-Johnston">Tanaka-Johnston</option>
+                                <option value="Moyers">Moyers</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="diagnosis">Diagnóstico</label>
+                            <textarea id="diagnosis" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notas y observaciones</label>
+                            <textarea id="notes" rows="3"></textarea>
+                        </div>
+                        <button type="button" onclick="addRecord()">Guardar Registro</button>
+                    </form>
+                    <br>
                     <div class="form-group">
-                        <label for="patientName">Nombre completo</label>
-                        <input type="text" id="patientName" required>
+                        <label for="githubToken">Token GitHub personal</label>
+                        <input type="password" id="githubToken" placeholder="Token para sincronizar datos">
+                        <button type="button" onclick="syncWithGitHub()">Sincronizar con GitHub</button>
                     </div>
-                    <div class="form-group">
-                        <label for="patientID">N° de historia clínica</label>
-                        <input type="text" id="patientID" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="birthDate">Fecha de nacimiento</label>
-                        <input type="date" id="birthDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="age">Edad</label>
-                        <input type="number" min="0" max="120" id="age" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="sex">Sexo</label>
-                        <select id="sex"><option value="">Selecciona</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Correo electrónico</label>
-                        <input type="email" id="email">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Teléfono</label>
-                        <input type="tel" id="phone">
-                    </div>
-                    <div class="form-group">
-                        <label for="analysis">Análisis ortodóntico</label>
-                        <select id="analysis">
-                            <option value="">Selecciona</option>
-                            <option value="Bolton">Bolton</option>
-                            <option value="Discrepancia">Discrepancia</option>
-                            <option value="Tanaka-Johnston">Tanaka-Johnston</option>
-                            <option value="Moyers">Moyers</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="diagnosis">Diagnóstico</label>
-                        <textarea id="diagnosis" rows="2"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="notes">Notas y observaciones</label>
-                        <textarea id="notes" rows="3"></textarea>
-                    </div>
-                    <button type="button" onclick="addRecord()">Guardar Registro</button>
-                </form>
-                <br>
-                <div class="form-group">
-                    <label for="githubToken">Token GitHub personal</label>
-                    <input type="password" id="githubToken" placeholder="Token para sincronizar datos">
-                    <button type="button" onclick="syncWithGitHub()">Sincronizar con GitHub</button>
+                    <div class="record-list" id="recordList"></div>
                 </div>
-                <div class="record-list" id="recordList"></div>
+                <div class="tab-content-section" id="section-analisis">
+                    <h3>Cálculo automatizado de análisis ortodónticos</h3>
+                    <p>Próximamente: ingresa valores para calcular Bolton, Discrepancia, Tanaka-Johnston y Moyers.</p>
+                </div>
+                <div class="tab-content-section" id="section-historial">
+                    <h3>Historial de pacientes</h3>
+                    <div class="record-list" id="historyList"></div>
+                </div>
             </div>
         </main>
     </div>
     <script>
         let records = [];
-        function showTab(tab) {
-            const tabs = ["pacientes","analisis","historial"];
-            tabs.forEach(t => {
-                document.getElementById("tab-"+t).classList.remove("active");
-            });
-            document.getElementById("tab-"+tab).classList.add("active");
-            document.getElementById("tab-content").innerHTML = '';
-            if(tab === "pacientes") {
-                document.getElementById("tab-content").appendChild(document.getElementById("form-paciente"));
-                document.getElementById("tab-content").appendChild(document.getElementById("recordList"));
-            } else if(tab === "analisis") {
-                document.getElementById("tab-content").innerHTML = '<p>Aquí podrás automatizar el cálculo de análisis ortodónticos.</p>';
-            } else if(tab === "historial") {
-                renderRecords(true);
-            }
+        function switchTab(tab) {
+            // Cambia pestañas activas
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-'+tab).classList.add('active');
+
+            // Oculta todas y muestra sólo la correspondiente
+            document.querySelectorAll('.tab-content-section').forEach(
+                el => el.classList.remove('active')
+            );
+            document.getElementById('section-'+tab).classList.add('active');
+
+            // Si es historial, renderiza
+            if(tab==='historial'){ renderHistory(); }
         }
         function addRecord() {
             const r = {
@@ -189,14 +194,25 @@
             renderRecords();
             document.getElementById('form-paciente').reset();
         }
-        function renderRecords(history=false) {
+        function renderRecords() {
             let list = document.getElementById('recordList');
             list.innerHTML = '';
-            let recs = records;
-            if(history && records.length) {
-                list.innerHTML = '<h3>Historial de pacientes registrados:</h3>';
-            }
-            recs.forEach((r,idx) => {
+            records.forEach((r,idx) => {
+                list.innerHTML += `<div class='record'>
+                    <b>#${r.id}</b> <br><b>${r.name}</b> (${r.sex}, ${r.age} años) <br>
+                    Correo: ${r.email} Tel: ${r.phone}<br>
+                    Análisis: ${r.analysis} <br>
+                    Diagnóstico: ${r.diagnosis} <br>
+                    Notas: ${r.notes} <br>
+                    Fecha: <small>${r.date}</small>
+                    <button class='delete-btn' onclick='deleteRecord(${idx})'>Eliminar</button>
+                </div>`;
+            });
+        }
+        function renderHistory() {
+            let list = document.getElementById('historyList');
+            list.innerHTML = '';
+            records.forEach((r,idx) => {
                 list.innerHTML += `<div class='record'>
                     <b>#${r.id}</b> <br><b>${r.name}</b> (${r.sex}, ${r.age} años) <br>
                     Correo: ${r.email} Tel: ${r.phone}<br>
@@ -210,7 +226,7 @@
         }
         function deleteRecord(idx) {
             if(confirm('¿Seguro que desea eliminar este registro?')) {
-                records.splice(idx,1); renderRecords();
+                records.splice(idx,1); renderRecords(); renderHistory();
             }
         }
         async function syncWithGitHub() {
@@ -245,7 +261,6 @@
                 document.getElementById('github-status').innerText = 'Error al sincronizar con GitHub.';
             }
         }
-        // Inicializa vista por defecto
         window.onload = function(){ renderRecords(); };
     </script>
 </body>
