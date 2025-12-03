@@ -262,6 +262,24 @@
             }
         }
         window.onload = function(){ renderRecords(); };
+
+            // Sistema de navegación completo
+            const menuItems = document.querySelectorAll('.menu-item');
+            const tabs = document.querySelectorAll('.tab');
+
+            menuItems.forEach(item => {
+                        item.addEventListener('click', function() {
+                                        menuItems.forEach(mi => mi.classList.remove('active'));
+                                        this.classList.add('active');
+                                    });
+                    });
+
+            tabs.forEach(tab => {
+                        tab.addEventListener('click', function() {
+                                        tabs.forEach(t => t.classList.remove('active'));
+                                        this.classList.add('active');
+                                    });
+                    });
     </script>
 </body>
 </html>
